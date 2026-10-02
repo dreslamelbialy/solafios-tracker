@@ -1,0 +1,237 @@
+// Solafios Tracker — Prisma schema
+// إدارة الدروس الخصوصية لمدرسي العلوم والكيمياء
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// المستخدم (المدرس) — كل البيانات مرتبطة بـ userId
+// ============================================================
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students       Student[]
+  sessions       Session[]
+  payments       Payment[]
+  families       Family[]
+  holidays       Holiday[]
+  locations      Location[]
+  academicYears  AcademicYear[]
+}
+
+// ============================================================
+// العائلة (Family) — مجموعة إخوة بخصم خاص
+// ============================================================
+model Family {
+  id              String   @id @default(cuid())
+  userId          String
+  primaryName     String
+  primaryPhone    String?
+  siblingDiscount Float    @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students Student[]
+
+  @@index([userId])
+}
+
+// ============================================================
+// الموقع (Location) — مكان الحصة (منزل الطالب/مكتب/أونلاين)
+// ============================================================
+model Location {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  address   String?
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @map("updatedAt_loc")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students Student[]
+
+  @@index([userId])
+}
+
+// ============================================================
+// السنة الدراسية (AcademicYear)
+// ============================================================
+model AcademicYear {
+  id        String   @id @default(cuid())
+  userId    String
+  label     String   // مثال: "2026-2027"
+  startDate String   // YYYY-MM-DD
+  endDate   String
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students Student[]
+
+  @@index([userId])
+}
+
+// ============================================================
+// الطالب (Student) — الكيان المركزي
+// ============================================================
+model Student {
+  id              String   @id @default(cuid())
+  userId          String
+  familyId        String?
+  yearId          String?
+  locationId      String?
+
+  name            String
+  subject         String   // Chemistry / Science / chemistry
+  grade           String   // "6", "9", "12"
+  stream          String   // international / national / ministry
+
+  // الفوترة
+  pricePerSession Float    @default(0)
+  billingType     String   @default("per_n") // per_n | monthly
+  billingN        Int      @default(4)       // عدد الحصص في الباقة
+
+  // الجدول الأسبوعي
+  weeklyDays      String   @default("[]")    // JSON array: [0,2,4]
+  sessionTime     String   @default("16:00") // HH:mm
+  weeklySchedule  String   @default("[]")    // JSON array: [{day,time}]
+
+  // تواصل وملاحظات
+  location        String?  // نص حر (للعنوان المختصر)
+  phone           String   @default("")
+  notes           String   @default("")
+  syllabusTarget  String   @default("[]")   // JSON
+
+  // الحالة
+  status          String   @default("active") // active | paused | archived
+  archived        Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family   Family?   @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  year     AcademicYear? @relation(fields: [yearId], references: [id], onDelete: SetNull)
+  locationRec Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  sessions Session[]
+  payments Payment[]
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([status])
+}
+
+// ============================================================
+// الجلسة (Session) — حصة فردية لطالب في تاريخ محدد
+// ============================================================
+model Session {
+  id              String   @id @default(cuid())
+  userId          String
+  studentId       String
+
+  date            String   // YYYY-MM-DD
+  time            String   // HH:mm
+
+  // الحالة
+  status          String   @default("scheduled")
+  // scheduled | completed | cancelled | cancelled_by_teacher | cancelled_by_student | no_show
+  cancelReason    String?
+  cancelledBy     String?  // teacher | student | other
+
+  // التعويضات
+  owedMakeup      Boolean  @default(false)
+  chargedToParent Boolean  @default(false)
+
+  // محتوى الحصة
+  topic           String   @default("")
+  homework        String   @default("")
+
+  // الفوترة
+  billed          Boolean  @default(false)
+  paymentId       String?
+
+  // أعلام
+  isExtra         Boolean  @default(false) // حصة إضافية خارج الجدول
+  isHistorical    Boolean  @default(false) // حصة قديمة مستوردة
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  student Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payment Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([studentId])
+  @@index([date])
+  @@index([status])
+}
+
+// ============================================================
+// المدفوعات (Payment) — دفعة من ولي الأمر لطالب
+// ============================================================
+model Payment {
+  id           String   @id @default(cuid())
+  userId       String
+  studentId    String
+
+  amount       Float
+  type         String   @default("full") // full | partial | advance
+  date         String   // YYYY-MM-DD
+  notes        String?
+
+  sessionIds   String   @default("[]") // JSON array of session ids
+  sessionCount Int      @default(0)
+
+  isHistorical Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  student  Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  sessions Session[]
+
+  @@index([userId])
+  @@index([studentId])
+  @@index([date])
+}
+
+// ============================================================
+// الإجازات والأحداث (Holiday) — أيام إجازة في التقويم
+// ============================================================
+model Holiday {
+  id        String   @id @default(cuid())
+  userId    String
+
+  title     String
+  kind      String   @default("holiday") // holiday | event | exam
+  stream    String   @default("ministry") // ministry | international | all
+  startDate String   // YYYY-MM-DD
+  endDate   String   // YYYY-MM-DD (نفس startDate لو يوم واحد)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([startDate])
+}

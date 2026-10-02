@@ -1,0 +1,20 @@
+{
+  "name": "Solafios Tracker",
+  "short_name": "Solafios",
+  "description": "إدارة الدروس الخصوصية لمدرسي العلوم والكيمياء",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#2F6F63",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
