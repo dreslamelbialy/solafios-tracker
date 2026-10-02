@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Sidebar, MobileHeader } from '@/components/solafios/sidebar'
 import { DashboardView } from '@/components/solafios/dashboard-view'
 import { ScheduleView } from '@/components/solafios/schedule-view'
+import { CalendarView } from '@/components/solafios/calendar-view'
 import { StudentsView } from '@/components/solafios/students-view'
 import { StudentDetailView } from '@/components/solafios/student-detail-view'
 import { SessionsView } from '@/components/solafios/sessions-view'
@@ -25,7 +26,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden md:block w-64 border-l border-sidebar-border flex-shrink-0">
+      <aside className="hidden md:block w-64 border-l border-sidebar-border flex-shrink-0 glass-sidebar">
         <div className="sticky top-0 h-screen">
           <Sidebar view={view} setView={setView} />
         </div>
@@ -33,7 +34,7 @@ export default function Home() {
       
       {/* Mobile sidebar (drawer) */}
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
-        <SheetContent side="right" className="w-72 p-0">
+        <SheetContent side="right" className="w-72 p-0 glass-sidebar">
           <Sidebar view={view} setView={setView} onNavigate={() => setMobileNavOpen(false)} />
         </SheetContent>
       </Sheet>
@@ -44,6 +45,7 @@ export default function Home() {
         <div className="flex-1 p-4 md:p-6 max-w-6xl mx-auto w-full">
           {view === 'dashboard' && <DashboardView setView={setView} />}
           {view === 'schedule' && <ScheduleView setView={setView} setStudentId={setStudentId} />}
+          {view === 'calendar' && <CalendarView setView={setView} setStudentId={setStudentId} />}
           {view === 'students' && <StudentsView setView={setView} setStudentId={setStudentId} />}
           {view === 'student-detail' && <StudentDetailView studentId={studentId} setView={setView} />}
           {view === 'sessions' && <SessionsView />}

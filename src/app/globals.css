@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-cairo);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-cairo), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -41,98 +41,208 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 }
 
+/* ============================================================
+   Solafios Tracker — Light Theme (Glass / Apple style)
+   ============================================================ */
 :root {
-  --radius: 0.75rem;
-  /* Solafios Tracker — تHEME أخضر تركوازي #2F6F63 */
+  --radius: 0.875rem;
+
+  /* Background — soft gradient reminiscent of macOS */
   --background: oklch(0.99 0.005 165);
-  --foreground: oklch(0.18 0.02 165);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 165);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 165);
-  /* Primary: #2F6F63 = teal-green */
+  --foreground: oklch(0.20 0.02 165);
+
+  /* Cards — semi-transparent for glass effect */
+  --card: oklch(1 0 0 / 0.72);
+  --card-foreground: oklch(0.20 0.02 165);
+
+  --popover: oklch(1 0 0 / 0.88);
+  --popover-foreground: oklch(0.20 0.02 165);
+
+  /* Primary — Solafios teal-green */
   --primary: oklch(0.52 0.09 170);
   --primary-foreground: oklch(0.99 0.005 165);
+
   --secondary: oklch(0.96 0.012 165);
   --secondary-foreground: oklch(0.25 0.03 165);
+
   --muted: oklch(0.96 0.008 165);
   --muted-foreground: oklch(0.50 0.02 165);
+
   --accent: oklch(0.94 0.025 165);
   --accent-foreground: oklch(0.25 0.05 165);
+
   --destructive: oklch(0.60 0.22 25);
-  --border: oklch(0.90 0.01 165);
-  --input: oklch(0.92 0.01 165);
-  --ring: oklch(0.52 0.09 170);
+  --border: oklch(0.88 0.012 165 / 0.6);
+  --input: oklch(0.92 0.01 165 / 0.5);
+  --ring: oklch(0.52 0.09 170 / 0.4);
+
+  /* Chart colors — harmonious with primary */
   --chart-1: oklch(0.52 0.09 170);
   --chart-2: oklch(0.65 0.13 80);
   --chart-3: oklch(0.60 0.20 25);
   --chart-4: oklch(0.55 0.12 250);
   --chart-5: oklch(0.70 0.15 310);
-  --sidebar: oklch(0.985 0.005 165);
-  --sidebar-foreground: oklch(0.18 0.02 165);
+
+  --sidebar: oklch(0.985 0.005 165 / 0.85);
+  --sidebar-foreground: oklch(0.20 0.02 165);
   --sidebar-primary: oklch(0.52 0.09 170);
   --sidebar-primary-foreground: oklch(0.99 0.005 165);
   --sidebar-accent: oklch(0.94 0.025 165);
   --sidebar-accent-foreground: oklch(0.25 0.05 165);
-  --sidebar-border: oklch(0.90 0.01 165);
-  --sidebar-ring: oklch(0.52 0.09 170);
+  --sidebar-border: oklch(0.88 0.012 165 / 0.4);
+  --sidebar-ring: oklch(0.52 0.09 170 / 0.4);
 }
 
+/* ============================================================
+   Dark Theme — frosted glass on dark
+   ============================================================ */
 .dark {
-  --background: oklch(0.15 0.015 165);
+  --background: oklch(0.16 0.015 165);
   --foreground: oklch(0.97 0.005 165);
-  --card: oklch(0.20 0.018 165);
+
+  --card: oklch(0.22 0.018 165 / 0.6);
   --card-foreground: oklch(0.97 0.005 165);
-  --popover: oklch(0.22 0.02 165);
+
+  --popover: oklch(0.24 0.02 165 / 0.92);
   --popover-foreground: oklch(0.97 0.005 165);
+
   --primary: oklch(0.65 0.11 170);
   --primary-foreground: oklch(0.15 0.015 165);
-  --secondary: oklch(0.27 0.02 165);
+
+  --secondary: oklch(0.27 0.02 165 / 0.6);
   --secondary-foreground: oklch(0.97 0.005 165);
-  --muted: oklch(0.27 0.015 165);
+
+  --muted: oklch(0.27 0.015 165 / 0.5);
   --muted-foreground: oklch(0.70 0.015 165);
-  --accent: oklch(0.30 0.03 165);
+
+  --accent: oklch(0.30 0.03 165 / 0.6);
   --accent-foreground: oklch(0.97 0.005 165);
+
   --destructive: oklch(0.70 0.20 25);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.65 0.11 170);
+  --border: oklch(1 0 0 / 0.08);
+  --input: oklch(1 0 0 / 0.12);
+  --ring: oklch(0.65 0.11 170 / 0.5);
+
   --chart-1: oklch(0.65 0.11 170);
   --chart-2: oklch(0.72 0.14 80);
   --chart-3: oklch(0.70 0.22 25);
   --chart-4: oklch(0.65 0.14 250);
   --chart-5: oklch(0.75 0.16 310);
-  --sidebar: oklch(0.18 0.015 165);
+
+  --sidebar: oklch(0.18 0.015 165 / 0.7);
   --sidebar-foreground: oklch(0.97 0.005 165);
   --sidebar-primary: oklch(0.65 0.11 170);
   --sidebar-primary-foreground: oklch(0.15 0.015 165);
-  --sidebar-accent: oklch(0.30 0.03 165);
+  --sidebar-accent: oklch(0.30 0.03 165 / 0.6);
   --sidebar-accent-foreground: oklch(0.97 0.005 165);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.65 0.11 170);
+  --sidebar-border: oklch(1 0 0 / 0.06);
+  --sidebar-ring: oklch(0.65 0.11 170 / 0.5);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
+
+  html, body {
     @apply bg-background text-foreground;
-    font-feature-settings: "ss01", "cv11";
+    font-feature-settings: "ss01", "cv11", "kern";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+
+  body {
+    /* Soft gradient background like macOS Big Sur */
+    background:
+      radial-gradient(at 0% 0%, oklch(0.52 0.09 170 / 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, oklch(0.70 0.15 310 / 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, oklch(0.65 0.13 80 / 0.04) 0px, transparent 50%),
+      var(--background);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  .dark body {
+    background:
+      radial-gradient(at 0% 0%, oklch(0.65 0.11 170 / 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, oklch(0.75 0.16 310 / 0.10) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, oklch(0.72 0.14 80 / 0.08) 0px, transparent 50%),
+      var(--background);
+  }
+
   /* RTL enhancements */
   [dir="rtl"] {
     text-align: right;
   }
-  /* Better number rendering for Arabic */
+
+  /* Tabular numbers for financial data */
   .tabular {
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 }
 
-/* Custom scrollbar for long lists */
+/* ============================================================
+   Glass effects (Apple-inspired)
+   ============================================================ */
+
+/* Frosted glass card */
+.glass {
+  background: var(--card);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.5) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.04),
+    0 4px 12px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.2),
+    0 4px 12px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar glass */
+.glass-sidebar {
+  background: var(--sidebar);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+/* Header glass (sticky) */
+.glass-header {
+  background: var(--popover);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Make shadcn Card use glass effect by default */
+[data-slot="card"] {
+  background: var(--card);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-color: var(--border);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.5) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.04),
+    0 4px 12px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark [data-slot="card"] {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.2),
+    0 4px 12px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom scrollbar — thin like macOS */
 .scroll-area-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -149,8 +259,21 @@
   background: var(--primary);
 }
 
+/* Smooth transitions */
+button, a, input, select, textarea {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus ring — Apple style */
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Print styles for reports */
 @media print {
   .no-print { display: none !important; }
   .print-only { display: block !important; }
+  body { background: white !important; }
 }

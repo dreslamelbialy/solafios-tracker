@@ -10,6 +10,7 @@ export type ViewKey =
   | 'students'
   | 'student-detail'
   | 'schedule'
+  | 'calendar'
   | 'sessions'
   | 'payments'
   | 'families'

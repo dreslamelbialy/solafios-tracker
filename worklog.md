@@ -144,3 +144,56 @@ Stage Summary:
   8. بيانات الدفع (IBAN، بنك) في الإعدادات
 - كل البيانات المالية محفوظة + قابلة للعرض في صفحة الطالب
 - اللينك اللايف: https://preview-chat-7d08affb-7199-4038-b762-86adcb5a367f.space-z.ai/
+
+---
+Task ID: 3
+Agent: Super Z (main)
+Task: تحسينات جمالية + إضافة Calendar view + إعداد PostgreSQL migration
+
+Work Log:
+- تحديث globals.css بـ Glassmorphism theme (Apple style):
+  - خلفية متدرجة radial gradient مثل macOS Big Sur
+  - Cards شفافة مع backdrop-filter blur
+  - Sidebar بـ glass effect
+  - Dark mode محسّن
+  - Smooth transitions
+  - Focus ring بـ Apple style
+- تحديث layout.tsx:
+  - إضافة Inter font (للإنجليزي) بجانب Cairo (للعربي)
+  - Inter بأوزان 300-700
+  - Cairo بأوزان 300-900
+- إعداد PostgreSQL migration:
+  - تحديث prisma/schema.prisma بتعليقات واضحة للتبديل بين SQLite/PostgreSQL
+  - إنشاء scripts/migrate-to-postgres.sh (script جاهز)
+  - الـ schema دلوقتي يدعم الاتنين بسهولة
+- بناء Calendar view (تقويم شهري + يومي):
+  - mode='month': تقويم شهري كامل (6 أسابيع × 7 أيام)
+    - كل يوم فيه chips بالحصص المجدولة
+    - chips ملونة حسب الحالة (أخضر=تامة، أحمر=ملغاة، أساسي=مجدولة)
+    - النقر على يوم يفتح الجدول اليومي له
+    - إحصائيات الشهر في الأسفل (إجمالي/تامة/مجدولة/ملغاة)
+  - mode='day': جدول يومي بالتفصيل
+    - كل حصة كـ card بالوقت + الطالب + الموضوع + المكان
+    - النقر على الطالب يفتح صفحة تفاصيله
+- تحديث Sidebar:
+  - إضافة "التقويم" (Calendar icon)
+  - تغيير اسم "الجدول" → "الجدول الأسبوعي"
+- تحديث use-view hook + page.tsx لإضافة view 'calendar'
+- تطبيق glass-sidebar على الـ aside و SheetContent
+- اختبار Agent Browser:
+  - Calendar month view: بيعرض أكتوبر 2026 بكل الحصص
+  - Calendar day view: بيظهر حصص اليوم (Rokaia تامة)
+  - Dashboard: بـ glass effect شغّال
+  - مفيش runtime errors
+
+Stage Summary:
+- تم تطبيق كل التحسينات المطلوبة:
+  1. ✅ Glass theme (Apple style) + خلفية متدرجة
+  2. ✅ خطوط Cairo (عربي) + Inter (إنجليزي)
+  3. ✅ Calendar view (تقويم شهري + يومي)
+  4. ✅ إعداد PostgreSQL migration جاهز (محتاج DATABASE_URL من المستخدم)
+- بخصوص PostgreSQL:
+  - الـ schema جاهز للتبديل (سطر واحد فقط)
+  - سكريبت migration جاهز (scripts/migrate-to-postgres.sh)
+  - محتاج فقط: DATABASE_URL من Supabase
+  - التعليمات في الـ script

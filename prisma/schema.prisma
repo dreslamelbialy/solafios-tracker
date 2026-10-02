@@ -1,11 +1,15 @@
 // Solafios Tracker — Prisma schema
 // إدارة الدروس الخصوصية لمدرسي العلوم والكيمياء
+// يدعم SQLite (محلي) أو PostgreSQL (سحابي) — حسب DATABASE_URL
+// للتبديل لـ PostgreSQL: غيّر provider إلى "postgresql" وضع DATABASE_URL صحيح في .env
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
+  // حالياً SQLite للمحلي. للترحيل إلى PostgreSQL السحابي، غيّر إلى:
+  // provider = "postgresql"
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
