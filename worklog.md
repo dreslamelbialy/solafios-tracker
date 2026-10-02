@@ -197,3 +197,45 @@ Stage Summary:
   - سكريبت migration جاهز (scripts/migrate-to-postgres.sh)
   - محتاج فقط: DATABASE_URL من Supabase
   - التعليمات في الـ script
+
+---
+Task ID: 4
+Agent: Super Z (main)
+Task: Migration إلى PostgreSQL السحابي (Supabase)
+
+Work Log:
+- استلام بيانات Supabase من المستخدم:
+  - Project URL: https://wrnosdqilivrzkrvonkp.supabase.co/
+  - Project ref: wrnosdqilivrzkrvonkp
+  - Database URL (مباشر): postgresql://postgres:[MennaEslam908@]@db.wrnosdqilivrzkrvonkp.supabase.co:5432/postgres
+- اكتشاف أن الـ direct connection IPv6-only (db.wrnosdqilivrzkrvonkp.supabase.co) لا يعمل في sandbox (IPv6 غير متاح)
+- اختبار الـ pooler URLs في كل المناطق:
+  - us-east-1: "tenant/user not found" (مشروع مش موجود في هذه المنطقة)
+  - ap-southeast-2: "password authentication failed" (مشروع موجود! بس كلمة المرور غلط)
+- اكتشاف أن كلمة المرور الصحيحة هي `MennaEslam908@` (بدون الأقواس المربعة [ ])
+- إعداد PostgreSQL pooler URL الصحيح:
+  - postgresql://postgres.wrnosdqilivrzkrvonkp:MennaEslam908%40@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres
+- تحديث Prisma schema إلى postgresql + previewFeatures=driverAdapters
+- تطبيق db:push بنجاح — كل الـ tables ات_createdت في PostgreSQL
+- استيراد الـ backup بنجاح:
+  - 7 locations + 2 families + 1 year + 8 students + 10 payments + 42 sessions + 65 holidays
+- محاولة تشغيل السيرفر مع PostgreSQL:
+  - المشكلة: OOM (Out of Memory) — السيرفر بيموت كل ما API يتنادى
+  - السبب: Prisma Rust engine + pg adapter مع بعض بياخدوا memory كتير (22GB virtual)
+- القرار: الرجوع إلى SQLite مؤقتاً علشان التطبيق يفضل شغال
+  - إعادة .env إلى SQLite
+  - إعادة schema إلى sqlite
+  - إعادة import الـ backup
+  - السيرفر شغال تمام مع كل الداتا
+
+Stage Summary:
+- تم إعداد PostgreSQL migration بنجاح (schema + داتا كلها في Supabase)
+- لكن Prisma + pg adapter بيسبب OOM في sandbox environment
+- تم الرجوع إلى SQLite مؤقتاً — التطبيق شغال بكامل الميزات
+- الـ PostgreSQL database جاهز ومستوردة — ممكن نستخدمها لما نعمل deploy على Vercel
+- بيانات Supabase:
+  - Project ref: wrnosdqilivrzkrvonkp
+  - Region: ap-southeast-2 (سيدني)
+  - Pooler URL: aws-0-ap-southeast-2.pooler.supabase.com:5432
+  - User: postgres.wrnosdqilivrzkrvonkp
+  - Password: MennaEslam908@

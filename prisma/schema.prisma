@@ -8,8 +8,6 @@ generator client {
 }
 
 datasource db {
-  // حالياً SQLite للمحلي. للترحيل إلى PostgreSQL السحابي، غيّر إلى:
-  // provider = "postgresql"
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
