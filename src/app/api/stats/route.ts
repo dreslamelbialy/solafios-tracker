@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
       },
       include: {
         student: {
-          select: { id: true, name: true, subject: true, grade: true, stream: true, locationId: true, locationRec: { select: { name: true } } }
+          select: { id: true, name: true, subject: true, grade: true, stream: true, locationId: true, locationRec: { select: { name: true, lat: true, lng: true } } }
         }
       },
       orderBy: [{ date: 'asc' }, { time: 'asc' }],

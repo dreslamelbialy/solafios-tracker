@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import {
   Users, CalendarCheck, Wallet, TrendingUp,
   CalendarDays, AlertTriangle, ChevronLeft,
-  Sparkles, CalendarOff,
+  Sparkles, CalendarOff, Navigation,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -18,6 +18,7 @@ import {
 import {
   formatCurrency, formatNumber, formatDateAr, formatTime12,
   SESSION_STATUS_AR, SESSION_STATUS_COLORS, SUBJECT_AR, STREAM_AR,
+  todayStr,
 } from '@/lib/solafios'
 import { ViewKey } from '@/lib/use-view'
 
@@ -237,31 +238,66 @@ export function DashboardView({ setView }: { setView: (v: ViewKey) => void }) {
                 لا توجد جلسات قادمة هذا الأسبوع
               </div>
             ) : (
-              stats.upcoming.map(s => (
-                <div
-                  key={s.id}
-                  className="flex items-center gap-3 p-2.5 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                >
-                  <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-primary/10 text-primary flex-shrink-0">
-                    <span className="text-[10px] font-medium leading-none">
-                      {new Date(s.date + 'T00:00:00').toLocaleDateString('ar-SA-u-ca-gregory', { month: 'short' })}
-                    </span>
-                    <span className="text-base font-bold leading-none mt-0.5">
-                      {new Date(s.date + 'T00:00:00').getDate()}
-                    </span>
+              stats.upcoming.map(s => {
+                const isToday = s.date === todayStr()
+                const hasLocation = s.student.locationRec && (s.student.locationRec.lat || s.student.locationRec.lng)
+                const mapsUrl = hasLocation
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${s.student.locationRec.lat},${s.student.locationRec.lng}`
+                  : s.student.locationRec?.name
+                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.student.locationRec.name)}`
+                    : null
+                return (
+                  <div
+                    key={s.id}
+                    className={`flex items-center gap-3 p-2.5 rounded-lg border transition-colors ${
+                      isToday
+                        ? 'bg-primary/5 border-primary/30 ring-1 ring-primary/20'
+                        : 'bg-card hover:bg-accent/50'
+                    }`}
+                  >
+                    <div className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg flex-shrink-0 ${
+                      isToday ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
+                    }`}>
+                      <span className="text-[10px] font-medium leading-none">
+                        {new Date(s.date + 'T00:00:00').toLocaleDateString('ar-SA-u-ca-gregory', { month: 'short' })}
+                      </span>
+                      <span className="text-base font-bold leading-none mt-0.5">
+                        {new Date(s.date + 'T00:00:00').getDate()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-medium text-sm truncate">{s.student.name}</p>
+                        {isToday && (
+                          <Badge variant="outline" className="text-[9px] bg-primary text-primary-foreground border-0">
+                            اليوم
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {formatTime12(s.time)} · {SUBJECT_AR[s.student.subject] || s.student.subject}
+                        {s.student.locationRec && ` · ${s.student.locationRec.name}`}
+                      </p>
+                    </div>
+                    {mapsUrl && (
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-all flex-shrink-0 ${
+                          isToday
+                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
+                            : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300'
+                        }`}
+                        title="اذهب إلى الموقع على Google Maps"
+                      >
+                        <Navigation className="w-3.5 h-3.5" />
+                        اذهب للموقع
+                      </a>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{s.student.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {formatTime12(s.time)} · {SUBJECT_AR[s.student.subject] || s.student.subject}
-                      {s.student.locationRec && ` · ${s.student.locationRec.name}`}
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="text-[10px]">
-                    {STREAM_AR[s.student.stream] || s.student.stream}
-                  </Badge>
-                </div>
-              ))
+                )
+              })
             )}
           </CardContent>
         </Card>
