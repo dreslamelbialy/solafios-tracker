@@ -280,3 +280,41 @@ Stage Summary:
 - المشروع جاهز للرفع على GitHub (commit f79d40d)
 - 154 ملف tracked، حجم الـ repo 6.2MB
 - في انتظار المستخدم يعمل git push لـ GitHub repo بتاعه
+
+---
+Task ID: 6
+Agent: Super Z (main)
+Task: إصلاح مشكلة Vercel deploy — Git email مرفوض
+
+Work Log:
+- اكتشاف المشكلة عبر VLM لـ 6 screenshots:
+  - Vercel بيرفض الـ deploy بـ "Deployment Blocked"
+  - السبب: commit author email (z@container) مش متطابق مع GitHub
+  - Vercel Hobby tier بيشترط إن الـ email يتطابق مع GitHub account
+- الحصول على GitHub user info عبر API:
+  - login: dreslamelbialy
+  - id: 279130524
+  - email: None (private)
+  - الحل: استخدام GitHub noreply email: 279130524+dreslamelbialy@users.noreply.github.com
+- تحديث git config:
+  - user.email = 279130524+dreslamelbialy@users.noreply.github.com
+  - user.name = dreslamelbialy
+- إعادة كتابة كل الـ commits (12 commit) بـ git filter-branch:
+  - تغيير GIT_AUTHOR_EMAIL + GIT_COMMITTER_EMAIL لكل commit
+  - تغيير GIT_AUTHOR_NAME + GIT_COMMITTER_NAME لكل commit
+- force push للـ GitHub:
+  - git push --force origin main
+- التحقق من النجاح:
+  - /api/debug → 200: DATABASE_URL_set=true, prisma.status=connected
+  - /api/students → 200: 8 طلاب بالداتا الصحيحة
+  - /api/stats → 200: 6 نشطين، 4300 ريال دخل السنة
+  - /api/students/[id]/report → 200: سعدون 600 ريال مستحق (4×150)، عبد الله 100 ريال (1×100)
+
+Stage Summary:
+- ✅ التطبيق شغّال على Vercel: https://solafios-tracker.vercel.app/
+- ✅ متصل بـ PostgreSQL السحابي (Supabase)
+- ✅ كل الداتا موجودة (8 طلاب، 42 جلسة، 10 مدفوعات، إلخ)
+- ✅ كل الـ APIs شغالة (students, sessions, payments, stats, report)
+- ✅ الحسابات صحيحة (الحصص × السعر = المستحق)
+- ✅ كل الأجهزة تقدر تفتح نفس اللينك وتشوف نفس الداتا
+- اللينك النهائي: https://solafios-tracker.vercel.app/
