@@ -239,3 +239,44 @@ Stage Summary:
   - Pooler URL: aws-0-ap-southeast-2.pooler.supabase.com:5432
   - User: postgres.wrnosdqilivrzkrvonkp
   - Password: MennaEslam908@
+
+---
+Task ID: 5
+Agent: Super Z (main)
+Task: إزالة حساب الباقات + تجهيز المشروع للرفع على GitHub
+
+Work Log:
+- تعديل Report API (`/api/students/[id]/report/route.ts`):
+  - إزالة حساب الـ packages (fullPackages × pricePerSession)
+  - المستحق = dueSessionsCount × pricePerSession (دائماً، بصرف النظر عن billingType)
+  - billingProgress = "X حصة × Y ريال" (بدل "X/N حصة (Y باقة مستحقة)")
+  - إزالة sessionsUntilNextPackage (مش محتاجينه)
+- تعديل Student Detail view (`student-detail-view.tsx`):
+  - إزالة "billingType · كل N حصص" من KPI card
+  - عرض "سعر الحصة الواحدة" بدلاً منها
+  - المستحق = unbilledSessions.length × pricePerSession (بدون باقات)
+  - عرض "X حصة × Y ريال" بدل "X حصة غير مفوترة"
+- تعديل Report Dialog:
+  - إزالة "الفوترة: لكل N حصص" من بطاقة الطالب
+  - إزالة النص "تنقسم لباقات كل N حصص بسعر X للباقة"
+  - عرض "الحساب: X حصة تامة × Y ريال = Z" بدلاً منه
+- اختبار النتائج:
+  - سعدون: السعر 150، المدفوع 300 (2 حصة)، المستحق **600** (4 حصة × 150) ✅
+  - عبد الله: السعر 100، المدفوع 800 (8 حصص)، المستحق **100** (1 حصة × 100) ✅
+- إعداد GitHub:
+  - تحديث .gitignore (تجاهل db/, upload/, download/, tool-results/, .env.sqlite-backup)
+  - إضافة استثناء لـ .env.example
+  - إنشاء README.md شامل (الميزات، التقنيات، التشغيل، الـ deploy)
+  - إنشاء .env.example
+  - git commit: "feat: إزالة حساب الباقات — الحصص هي الفيصل + إعداد GitHub"
+- بخصوص سؤال المستخدم عن حساب Supabase المنفصل:
+  - لا، ده مش السبب. حساب Supabase منفصل تماماً عن حساب الـ chat (Z.ai)
+  - المشكلة كانت OOM في الـ sandbox (4GB RAM فقط)
+  - الـ sandbox ده بيشتغل على بنية underneathية تانية خالص
+
+Stage Summary:
+- تم إصلاح حساب المستحق — الحصص هي الفيصل (مش الباقات)
+- سعدون دلوقتي بيظهر صح: 4 حصص × 150 = 600 ريال (مش 300 زي ما كان)
+- المشروع جاهز للرفع على GitHub (commit f79d40d)
+- 154 ملف tracked، حجم الـ repo 6.2MB
+- في انتظار المستخدم يعمل git push لـ GitHub repo بتاعه
