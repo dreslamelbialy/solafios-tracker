@@ -42,39 +42,43 @@ export async function GET(
   
   if (!student) return NextResponse.json({ error: 'student not found' }, { status: 404 })
   
-  // Calculate current outstanding amount:
-  // For per_n billing: count completed+unbilled sessions, divide by billingN, multiply by pricePerSession
-  // For monthly billing: count completed+unbilled sessions in current month * pricePerSession
-  const completedUnbilledSessions = sessions.filter(s =>
+  // Categorize sessions for the report:
+  // - PAID sessions: completed AND billed (have a paymentId)
+  // - DUE sessions: completed AND NOT billed (not yet paid)
+  // - Other sessions (scheduled, cancelled) are excluded from the financial tables
+  
+  const paidSessions = sessions.filter(s =>
+    s.status === 'completed' && s.billed
+  )
+  const dueSessions = sessions.filter(s =>
     s.status === 'completed' && !s.billed && !s.isHistorical
   )
   
+  // Calculate current outstanding amount
   let outstandingAmount = 0
-  let outstandingSessionsCount = completedUnbilledSessions.length
-  let billingProgress = '' // human readable
+  let outstandingSessionsCount = dueSessions.length
+  let billingProgress = ''
   
   if (student.billingType === 'per_n') {
     const billingN = student.billingN || 1
     const fullPackages = Math.floor(outstandingSessionsCount / billingN)
-    const remainder = outstandingSessionsCount % billingN
     outstandingAmount = fullPackages * student.pricePerSession
     billingProgress = `${outstandingSessionsCount}/${billingN} حصة` +
-      (fullPackages > 0 ? ` (${fullPackages} باعة مستحقة)` : '')
+      (fullPackages > 0 ? ` (${fullPackages} باقة مستحقة)` : '')
   } else {
-    // monthly: each completed+unbilled session = pricePerSession
     outstandingAmount = outstandingSessionsCount * student.pricePerSession
-    billingProgress = `${outstandingSessionsCount} حصة غير مفوترة`
+    billingProgress = `${outstandingSessionsCount} حصة مستحقة`
   }
   
   // Total paid (sum of all payments)
   const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0)
   
-  // Group sessions by month for the report
-  const sessionsByMonth = new Map<string, typeof sessions>()
-  for (const s of sessions) {
-    const monthKey = s.date.slice(0, 7) // YYYY-MM
-    if (!sessionsByMonth.has(monthKey)) sessionsByMonth.set(monthKey, [])
-    sessionsByMonth.get(monthKey)!.push(s)
+  // Group paid sessions by payment (each payment → its sessions)
+  const sessionsByPayment = new Map<string, typeof sessions>()
+  for (const s of paidSessions) {
+    if (!s.paymentId) continue
+    if (!sessionsByPayment.has(s.paymentId)) sessionsByPayment.set(s.paymentId, [])
+    sessionsByPayment.get(s.paymentId)!.push(s)
   }
   
   // Build report object
@@ -111,21 +115,33 @@ export async function GET(
       endDate: year.endDate,
     } : null,
     summary: {
+      // General stats (all sessions)
       totalSessions: sessions.length,
       completedSessions: sessions.filter(s => s.status === 'completed').length,
       cancelledSessions: sessions.filter(s => s.status.startsWith('cancelled')).length,
       scheduledSessions: sessions.filter(s => s.status === 'scheduled').length,
+      
+      // Financial stats — THE KEY DATA FOR THE REPORT
+      totalPaid,                              // إجمالي ما دفعه ولي الأمر
       totalPayments: payments.length,
-      totalPaid,
-      outstandingSessions: outstandingSessionsCount,
-      outstandingAmount,
+      paidSessionsCount: paidSessions.length,  // عدد الحصص المدفوعة
+      dueSessionsCount: dueSessions.length,    // عدد الحصص المستحقة (تامة وغير مدفوعة)
+      outstandingAmount,                       // المبلغ المستحق حالياً
       billingProgress,
+      
+      // For per_n: how many sessions until next package is due
+      sessionsUntilNextPackage: student.billingType === 'per_n'
+        ? ((student.billingN || 1) - (dueSessions.length % (student.billingN || 1))) % (student.billingN || 1)
+        : 0,
     },
-    sessions, // all sessions, ordered by date asc
-    payments, // all payments, ordered by date desc
-    sessionsByMonth: Array.from(sessionsByMonth.entries()).map(([month, items]) => ({
-      month,
+    // For the report: only PAID and DUE sessions (not all sessions)
+    paidSessions,   // الحصص المدفوعة
+    dueSessions,    // الحصص المستحقة الدفع
+    payments,       // سجل كل الدفعات
+    sessionsByPayment: Array.from(sessionsByPayment.entries()).map(([pid, items]) => ({
+      paymentId: pid,
       sessions: items,
+      payment: payments.find(p => p.id === pid),
     })),
   }
   

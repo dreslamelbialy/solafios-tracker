@@ -956,47 +956,101 @@ function ReportDialog({
             </div>
           </div>
           
-          {/* Outstanding amount */}
-          <div className="bg-emerald-50 dark:bg-emerald-950/20 p-4 rounded-lg mb-4 text-center">
+          {/* Outstanding amount - BIG HIGHLIGHTED */}
+          <div className="bg-emerald-50 dark:bg-emerald-950/20 border-2 border-emerald-300 dark:border-emerald-800 p-4 rounded-lg mb-4 text-center">
             <p className="text-xs text-muted-foreground mb-1">المبلغ المستحق حالياً</p>
-            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+            <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">
               {formatCurrency(report.summary.outstandingAmount)}
             </p>
             <p className="text-[11px] text-muted-foreground mt-1">
               {report.summary.billingProgress}
             </p>
+            <p className="text-[10px] text-muted-foreground/80 mt-1">
+              ({report.summary.dueSessionsCount} حصة تامة وغير مدفوعة)
+            </p>
           </div>
           
-          {/* Recent sessions table */}
-          <div className="mb-4">
-            <h3 className="font-bold text-sm mb-2">آخر الجلسات</h3>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="bg-primary text-primary-foreground">
-                  <th className="p-2 text-right">#</th>
-                  <th className="p-2 text-right">التاريخ</th>
-                  <th className="p-2 text-right">الوقت</th>
-                  <th className="p-2 text-right">الموضوع</th>
-                  <th className="p-2 text-right">الحالة</th>
-                  <th className="p-2 text-right">مفوترة</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.sessions.slice(-10).reverse().map((s: any, i: number) => (
-                  <tr key={s.id} className="border-b">
-                    <td className="p-2">{i + 1}</td>
-                    <td className="p-2">{formatDateAr(s.date)}</td>
-                    <td className="p-2">{formatTime12(s.time)}</td>
-                    <td className="p-2">{s.topic || '—'}</td>
-                    <td className="p-2">{SESSION_STATUS_AR[s.status]}</td>
-                    <td className="p-2">{s.billed ? '✓' : '—'}</td>
+          {/* PAID sessions table — الحصص المدفوعة فقط */}
+          {report.paidSessions && report.paidSessions.length > 0 && (
+            <div className="mb-4">
+              <h3 className="font-bold text-sm mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                الحصص المدفوعة ({report.paidSessions.length} حصة)
+              </h3>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-emerald-700 text-white">
+                    <th className="p-2 text-right">#</th>
+                    <th className="p-2 text-right">التاريخ</th>
+                    <th className="p-2 text-right">الوقت</th>
+                    <th className="p-2 text-right">الموضوع</th>
+                    <th className="p-2 text-right">الدفعة</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {[...report.paidSessions].reverse().map((s: any, i: number) => {
+                    // Find the payment that covered this session
+                    const payGroup = report.sessionsByPayment?.find((g: any) => g.sessions.some((ss: any) => ss.id === s.id))
+                    return (
+                      <tr key={s.id} className="border-b bg-emerald-50/30 dark:bg-emerald-950/10">
+                        <td className="p-2">{i + 1}</td>
+                        <td className="p-2">{formatDateAr(s.date)}</td>
+                        <td className="p-2">{formatTime12(s.time)}</td>
+                        <td className="p-2">{s.topic || '—'}</td>
+                        <td className="p-2 text-emerald-700 dark:text-emerald-300">
+                          {payGroup?.payment ? `${formatDateAr(payGroup.payment.date)} — ${formatCurrency(payGroup.payment.amount)}` : '✓'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
           
-          {/* Past payments */}
+          {/* DUE sessions table — الحصص المستحقة الدفع */}
+          {report.dueSessions && report.dueSessions.length > 0 && (
+            <div className="mb-4">
+              <h3 className="font-bold text-sm mb-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                الحصص المستحقة الدفع ({report.dueSessions.length} حصة)
+              </h3>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-amber-700 text-white">
+                    <th className="p-2 text-right">#</th>
+                    <th className="p-2 text-right">التاريخ</th>
+                    <th className="p-2 text-right">الوقت</th>
+                    <th className="p-2 text-right">الموضوع</th>
+                    <th className="p-2 text-right">سعر الحصة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...report.dueSessions].reverse().map((s: any, i: number) => (
+                    <tr key={s.id} className="border-b bg-amber-50/30 dark:bg-amber-950/10">
+                      <td className="p-2">{i + 1}</td>
+                      <td className="p-2">{formatDateAr(s.date)}</td>
+                      <td className="p-2">{formatTime12(s.time)}</td>
+                      <td className="p-2">{s.topic || '—'}</td>
+                      <td className="p-2 font-bold text-amber-700 dark:text-amber-300">
+                        {formatCurrency(report.student.pricePerSession)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="mt-2 p-2 rounded bg-amber-100 dark:bg-amber-950/30 text-xs">
+                <strong>ملاحظة:</strong> {report.summary.dueSessionsCount} حصة تامة،
+                {' '}{report.student.billingType === 'per_n'
+                  ? `تنقسم لباقات كل ${report.student.billingN} حصص بسعر ${formatCurrency(report.student.pricePerSession)} للباقة.`
+                  : `كل حصة بسعر ${formatCurrency(report.student.pricePerSession)}.`
+                }
+                {' '}المستحق حالياً: <strong>{formatCurrency(report.summary.outstandingAmount)}</strong>
+              </div>
+            </div>
+          )}
+          
+          {/* Past payments summary */}
           {report.payments.length > 0 && (
             <div className="mb-4">
               <h3 className="font-bold text-sm mb-2">سجل الدفعات السابقة</h3>
@@ -1049,17 +1103,33 @@ function ReportDialog({
             </div>
           )}
           
-          {/* Summary */}
+          {/* Summary - 4 cells instead of 2 */}
           <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
-            <div className="p-2 rounded-lg bg-muted/40">
-              <p className="text-muted-foreground">إجمالي الجلسات</p>
-              <p className="font-bold">{report.summary.totalSessions} جلسة</p>
-            </div>
-            <div className="p-2 rounded-lg bg-muted/40">
+            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900">
               <p className="text-muted-foreground">إجمالي المدفوع</p>
               <p className="font-bold text-emerald-700 dark:text-emerald-300">
                 {formatCurrency(report.summary.totalPaid)}
               </p>
+              <p className="text-[10px] text-muted-foreground">
+                ({report.summary.paidSessionsCount} حصة مدفوعة)
+              </p>
+            </div>
+            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900">
+              <p className="text-muted-foreground">المستحق حالياً</p>
+              <p className="font-bold text-amber-700 dark:text-amber-300">
+                {formatCurrency(report.summary.outstandingAmount)}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                ({report.summary.dueSessionsCount} حصة مستحقة)
+              </p>
+            </div>
+            <div className="p-2 rounded-lg bg-muted/40">
+              <p className="text-muted-foreground">إجمالي الجلسات التامة</p>
+              <p className="font-bold">{report.summary.completedSessions} جلسة</p>
+            </div>
+            <div className="p-2 rounded-lg bg-muted/40">
+              <p className="text-muted-foreground">عدد الدفعات</p>
+              <p className="font-bold">{report.summary.totalPayments} دفعة</p>
             </div>
           </div>
           
