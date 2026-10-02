@@ -127,14 +127,8 @@ export function StudentDetailView({
   const totalPaid = student.payments.reduce((sum, p) => sum + (p.amount || 0), 0)
   const unbilledSessions = student.sessions.filter(s => s.status === 'completed' && !s.billed && !s.isHistorical)
   
-  let outstandingAmount = 0
-  if (student.billingType === 'per_n') {
-    const billingN = student.billingN || 1
-    const fullPackages = Math.floor(unbilledSessions.length / billingN)
-    outstandingAmount = fullPackages * student.pricePerSession
-  } else {
-    outstandingAmount = unbilledSessions.length * student.pricePerSession
-  }
+  // RULE: الحصص هي الفيصل — المستحق = عدد الحصص × سعر الحصة (بصرف النظر عن billingType)
+  const outstandingAmount = unbilledSessions.length * student.pricePerSession
   
   const handleStatusChange = async (sessionId: string, status: string) => {
     try {
@@ -226,10 +220,7 @@ export function StudentDetailView({
               <Wallet className="w-3.5 h-3.5 text-muted-foreground" />
             </div>
             <p className="text-lg font-bold tabular">{formatCurrency(student.pricePerSession)}</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {BILLING_TYPE_AR[student.billingType]}
-              {student.billingType === 'per_n' && ` · كل ${student.billingN} حصص`}
-            </p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">سعر الحصة الواحدة</p>
           </CardContent>
         </Card>
         <Card>
@@ -250,7 +241,7 @@ export function StudentDetailView({
             </div>
             <p className="text-lg font-bold tabular text-amber-700 dark:text-amber-300">{formatCurrency(outstandingAmount)}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              {unbilledSessions.length} حصة غير مفوترة
+              {unbilledSessions.length} حصة × {formatCurrency(student.pricePerSession)}
             </p>
           </CardContent>
         </Card>
@@ -949,7 +940,6 @@ function ReportDialog({
               <div><strong className="text-primary">الصف:</strong> {report.student.grade}</div>
               <div><strong className="text-primary">النظام:</strong> {STREAM_AR[report.student.stream]}</div>
               <div><strong className="text-primary">سعر الحصة:</strong> {formatCurrency(report.student.pricePerSession)}</div>
-              <div><strong className="text-primary">الفوترة:</strong> {BILLING_TYPE_AR[report.student.billingType]}</div>
               {report.student.phone && (
                 <div><strong className="text-primary">الهاتف:</strong> <span dir="ltr">{report.student.phone}</span></div>
               )}
@@ -1040,12 +1030,7 @@ function ReportDialog({
                 </tbody>
               </table>
               <div className="mt-2 p-2 rounded bg-amber-100 dark:bg-amber-950/30 text-xs">
-                <strong>ملاحظة:</strong> {report.summary.dueSessionsCount} حصة تامة،
-                {' '}{report.student.billingType === 'per_n'
-                  ? `تنقسم لباقات كل ${report.student.billingN} حصص بسعر ${formatCurrency(report.student.pricePerSession)} للباقة.`
-                  : `كل حصة بسعر ${formatCurrency(report.student.pricePerSession)}.`
-                }
-                {' '}المستحق حالياً: <strong>{formatCurrency(report.summary.outstandingAmount)}</strong>
+                <strong>الحساب:</strong> {report.summary.dueSessionsCount} حصة تامة × {formatCurrency(report.student.pricePerSession)} = <strong>{formatCurrency(report.summary.outstandingAmount)}</strong>
               </div>
             </div>
           )}

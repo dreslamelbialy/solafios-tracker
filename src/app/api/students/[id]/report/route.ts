@@ -55,20 +55,13 @@ export async function GET(
   )
   
   // Calculate current outstanding amount
-  let outstandingAmount = 0
-  let outstandingSessionsCount = dueSessions.length
-  let billingProgress = ''
-  
-  if (student.billingType === 'per_n') {
-    const billingN = student.billingN || 1
-    const fullPackages = Math.floor(outstandingSessionsCount / billingN)
-    outstandingAmount = fullPackages * student.pricePerSession
-    billingProgress = `${outstandingSessionsCount}/${billingN} حصة` +
-      (fullPackages > 0 ? ` (${fullPackages} باقة مستحقة)` : '')
-  } else {
-    outstandingAmount = outstandingSessionsCount * student.pricePerSession
-    billingProgress = `${outstandingSessionsCount} حصة مستحقة`
-  }
+  // RULE: الحصص هي الفيصل — كل حصة بسعرها، المستحق = عدد الحصص × سعر الحصة
+  // (no "package" math — clearer for parents)
+  const outstandingSessionsCount = dueSessions.length
+  const outstandingAmount = outstandingSessionsCount * student.pricePerSession
+  const billingProgress = outstandingSessionsCount > 0
+    ? `${outstandingSessionsCount} حصة × ${student.pricePerSession} ريال`
+    : 'لا توجد حصص مستحقة'
   
   // Total paid (sum of all payments)
   const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0)
@@ -130,9 +123,7 @@ export async function GET(
       billingProgress,
       
       // For per_n: how many sessions until next package is due
-      sessionsUntilNextPackage: student.billingType === 'per_n'
-        ? ((student.billingN || 1) - (dueSessions.length % (student.billingN || 1))) % (student.billingN || 1)
-        : 0,
+      sessionsUntilNextPackage: 0,
     },
     // For the report: only PAID and DUE sessions (not all sessions)
     paidSessions,   // الحصص المدفوعة
