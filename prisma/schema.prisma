@@ -21,6 +21,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // بيانات الدفع (تظهر في التقارير و QR code)
+  iban             String?  // رقم الآيبان
+  bankAccount      String?  // رقم الحساب
+  bankName         String?  // اسم البنك
+  beneficiaryName  String?  // اسم المستفيد
+  expectedProfitMargin Float @default(0) // نسبة الربح المتوقع %
+
   students       Student[]
   sessions       Session[]
   payments       Payment[]
@@ -121,6 +128,11 @@ model Student {
   // الحالة
   status          String   @default("active") // active | paused | archived
   archived        Boolean  @default(false)
+  blocked         Boolean  @default(false)   // حظر الطالب
+
+  // تتبع المنهج والتقييم
+  curriculumProgress String @default("[]") // JSON: [{chapter, completed, notes, date}]
+  evaluation         String   @default("")  // ملاحظات التقييم الأدائي
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

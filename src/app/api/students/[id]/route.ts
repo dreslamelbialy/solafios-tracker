@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { safeJsonParse } from '@/lib/solafios'
 
 export async function GET(
   _req: NextRequest,
@@ -14,12 +15,18 @@ export async function GET(
       locationRec: true,
       sessions: {
         orderBy: { date: 'desc' },
-        take: 50,
+        take: 100,
       },
       payments: {
         orderBy: { date: 'desc' },
-        take: 20,
+        take: 50,
+        include: {
+          sessions: {
+            select: { id: true, date: true, time: true, status: true }
+          }
+        }
       },
+      _count: { select: { sessions: true, payments: true } }
     }
   })
   if (!student) return NextResponse.json({ error: 'not found' }, { status: 404 })

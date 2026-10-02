@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react'
 export type ViewKey =
   | 'dashboard'
   | 'students'
+  | 'student-detail'
+  | 'schedule'
   | 'sessions'
   | 'payments'
   | 'families'

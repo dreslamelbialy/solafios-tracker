@@ -3,7 +3,7 @@
 import {
   LayoutDashboard, Users, CalendarCheck, Wallet,
   Users2, CalendarOff, MapPin, GraduationCap, Settings,
-  Beaker, ChevronRight,
+  Beaker, ChevronRight, CalendarDays,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ViewKey } from '@/lib/use-view'
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 
 const NAV: { key: ViewKey; label: string; icon: any; group?: string }[] = [
   { key: 'dashboard', label: 'الرئيسية', icon: LayoutDashboard, group: 'main' },
+  { key: 'schedule', label: 'الجدول', icon: CalendarDays, group: 'main' },
   { key: 'students', label: 'الطلاب', icon: Users, group: 'main' },
   { key: 'sessions', label: 'الجلسات', icon: CalendarCheck, group: 'main' },
   { key: 'payments', label: 'المدفوعات', icon: Wallet, group: 'main' },

@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { Sidebar, MobileHeader } from '@/components/solafios/sidebar'
 import { DashboardView } from '@/components/solafios/dashboard-view'
+import { ScheduleView } from '@/components/solafios/schedule-view'
 import { StudentsView } from '@/components/solafios/students-view'
+import { StudentDetailView } from '@/components/solafios/student-detail-view'
 import { SessionsView } from '@/components/solafios/sessions-view'
 import { PaymentsView } from '@/components/solafios/payments-view'
 import { FamiliesView } from '@/components/solafios/families-view'
@@ -11,13 +13,13 @@ import { HolidaysView } from '@/components/solafios/holidays-view'
 import { LocationsView } from '@/components/solafios/locations-view'
 import { YearsView } from '@/components/solafios/years-view'
 import { SettingsView } from '@/components/solafios/settings-view'
-import { useView, ViewKey } from '@/lib/use-view'
+import { useView } from '@/lib/use-view'
 import {
   Sheet, SheetContent,
 } from '@/components/ui/sheet'
 
 export default function Home() {
-  const { view, setView } = useView()
+  const { view, setView, studentId, setStudentId } = useView()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   
   return (
@@ -41,7 +43,9 @@ export default function Home() {
         <MobileHeader view={view} onMenu={() => setMobileNavOpen(true)} />
         <div className="flex-1 p-4 md:p-6 max-w-6xl mx-auto w-full">
           {view === 'dashboard' && <DashboardView setView={setView} />}
-          {view === 'students' && <StudentsView />}
+          {view === 'schedule' && <ScheduleView setView={setView} setStudentId={setStudentId} />}
+          {view === 'students' && <StudentsView setView={setView} setStudentId={setStudentId} />}
+          {view === 'student-detail' && <StudentDetailView studentId={studentId} setView={setView} />}
           {view === 'sessions' && <SessionsView />}
           {view === 'payments' && <PaymentsView />}
           {view === 'families' && <FamiliesView />}

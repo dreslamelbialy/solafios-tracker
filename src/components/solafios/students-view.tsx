@@ -17,13 +17,17 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Plus, Search, Phone, MapPin, Pencil, Archive, Trash2, Users, X } from 'lucide-react'
+import {
+  Plus, Search, Phone, MapPin, Pencil, Archive, Trash2, Users, X,
+  ChevronLeft, Printer, Ban, MessageCircle,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import {
   STUDENT_STATUS_AR, STUDENT_STATUSES, SUBJECTS, SUBJECT_AR,
   STREAMS, STREAM_AR, BILLING_TYPES, BILLING_TYPE_AR, WEEKDAYS_AR_SHORT,
   formatCurrency, safeJsonParse,
 } from '@/lib/solafios'
+import { ViewKey } from '@/lib/use-view'
 
 interface Student {
   id: string
@@ -41,6 +45,7 @@ interface Student {
   notes: string
   status: string
   archived: boolean
+  blocked: boolean
   family?: { id: string; primaryName: string } | null
   locationRec?: { id: string; name: string } | null
   year?: { id: string; label: string } | null
@@ -53,7 +58,12 @@ interface Year { id: string; label: string }
 
 const SUBJECT_OPTIONS = ['Chemistry', 'Science', 'Physics', 'Biology', 'Math', 'Other']
 
-export function StudentsView() {
+export function StudentsView({
+  setView, setStudentId,
+}: {
+  setView: (v: ViewKey) => void
+  setStudentId: (id: string) => void
+}) {
   const [students, setStudents] = useState<Student[]>([])
   const [families, setFamilies] = useState<Family[]>([])
   const [locations, setLocations] = useState<Location[]>([])
@@ -64,7 +74,6 @@ export function StudentsView() {
   const [filterSubject, setFilterSubject] = useState<string>('all')
   const [showArchived, setShowArchived] = useState(false)
   
-  // Sheet for create/edit
   const [editing, setEditing] = useState<Student | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   
@@ -108,6 +117,11 @@ export function StudentsView() {
     setSheetOpen(true)
   }
   
+  const openDetail = (s: Student) => {
+    setStudentId(s.id)
+    setView('student-detail')
+  }
+  
   const handleSave = async (data: any) => {
     try {
       if (editing) {
@@ -146,6 +160,32 @@ export function StudentsView() {
     } catch {
       toast.error('فشلت الأرشفة')
     }
+  }
+  
+  const handleToggleBlock = async (s: Student, e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      await fetch(`/api/students/${s.id}/block`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blocked: !s.blocked }),
+      })
+      toast.success(s.blocked ? 'تم فك الحظر' : 'تم حظر الطالب')
+      loadStudents()
+    } catch {
+      toast.error('فشل')
+    }
+  }
+  
+  const handleWhatsApp = (s: Student, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!s.phone) {
+      toast.error('لا يوجد رقم هاتف')
+      return
+    }
+    const phone = s.phone.replace(/[^0-9]/g, '').replace(/^0/, '966')
+    const msg = `السلام عليكم ${s.name}، هذا تذكير بموعد الحصة القادمة. شكراً.`
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
   }
   
   const handleDelete = async (s: Student) => {
@@ -235,9 +275,12 @@ export function StudentsView() {
             <StudentCard
               key={s.id}
               student={s}
+              onOpen={() => openDetail(s)}
               onEdit={() => openEdit(s)}
               onArchive={() => handleArchive(s)}
               onDelete={() => handleDelete(s)}
+              onToggleBlock={(e) => handleToggleBlock(s, e)}
+              onWhatsApp={(e) => handleWhatsApp(s, e)}
             />
           ))}
         </div>
@@ -264,32 +307,48 @@ export function StudentsView() {
 }
 
 function StudentCard({
-  student, onEdit, onArchive, onDelete,
+  student, onOpen, onEdit, onArchive, onDelete, onToggleBlock, onWhatsApp,
 }: {
   student: Student
+  onOpen: () => void
   onEdit: () => void
   onArchive: () => void
   onDelete: () => void
+  onToggleBlock: (e: React.MouseEvent) => void
+  onWhatsApp: (e: React.MouseEvent) => void
 }) {
-  const weeklyDays = safeJsonParse<number[]>(student.weeklyDays, [])
-  const statusColor = student.status === 'active'
+  const s = student
+  const weeklyDays = safeJsonParse<number[]>(s.weeklyDays, [])
+  const statusColor = s.status === 'active'
     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-    : student.status === 'paused'
+    : s.status === 'paused'
     ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
     : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
   
   return (
-    <Card className={student.archived ? 'opacity-60' : ''}>
+    <Card
+      className={`${s.archived ? 'opacity-60' : ''} ${s.blocked ? 'border-red-300 dark:border-red-900' : ''} hover:shadow-md transition-shadow cursor-pointer group`}
+      onClick={onOpen}
+    >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-base truncate">{student.name || 'بدون اسم'}</h3>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <h3 className="font-bold text-base truncate group-hover:text-primary transition-colors">
+                {s.name || 'بدون اسم'}
+              </h3>
+              {s.blocked && (
+                <Badge variant="outline" className="text-[9px] bg-red-50 text-red-700 border-0">
+                  محظور
+                </Badge>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {SUBJECT_AR[student.subject] || student.subject} · الصف {student.grade} · {STREAM_AR[student.stream] || student.stream}
+              {SUBJECT_AR[s.subject] || s.subject} · الصف {s.grade} · {STREAM_AR[s.stream] || s.stream}
             </p>
           </div>
           <Badge className={`${statusColor} border-0`} variant="outline">
-            {STUDENT_STATUS_AR[student.status] || student.status}
+            {STUDENT_STATUS_AR[s.status] || s.status}
           </Badge>
         </div>
         
@@ -304,9 +363,9 @@ function StudentCard({
               </span>
             ))
           )}
-          {student.sessionTime && (
+          {s.sessionTime && (
             <span className="text-[10px] px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">
-              {student.sessionTime}
+              {s.sessionTime}
             </span>
           )}
         </div>
@@ -315,52 +374,61 @@ function StudentCard({
         <div className="flex items-center justify-between text-xs mb-3">
           <div>
             <span className="text-muted-foreground">السعر: </span>
-            <span className="font-bold">{formatCurrency(student.pricePerSession)}</span>
+            <span className="font-bold">{formatCurrency(s.pricePerSession)}</span>
             <span className="text-muted-foreground"> / حصة</span>
           </div>
-          {student.family && (
+          {s.family && (
             <Badge variant="outline" className="text-[10px]">
               <Users className="w-3 h-3 ml-1" />
-              {student.family.primaryName}
+              {s.family.primaryName}
             </Badge>
           )}
         </div>
         
         {/* Phone + location */}
         <div className="space-y-1 text-xs text-muted-foreground mb-3">
-          {student.phone && (
+          {s.phone && (
             <div className="flex items-center gap-1.5">
               <Phone className="w-3 h-3" />
-              <span dir="ltr">{student.phone}</span>
+              <span dir="ltr">{s.phone}</span>
             </div>
           )}
-          {student.locationRec && (
+          {s.locationRec && (
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3 h-3" />
-              <span>{student.locationRec.name}</span>
+              <span>{s.locationRec.name}</span>
             </div>
           )}
         </div>
         
         {/* Stats */}
-        {student._count && (
+        {s._count && (
           <div className="flex gap-3 text-[11px] text-muted-foreground mb-3 pb-3 border-b">
-            <span>{student._count.sessions} جلسة</span>
+            <span>{s._count.sessions} جلسة</span>
             <span>·</span>
-            <span>{student._count.payments} دفعة</span>
+            <span>{s._count.payments} دفعة</span>
           </div>
         )}
         
         {/* Actions */}
-        <div className="flex gap-1">
-          <Button size="sm" variant="outline" onClick={onEdit} className="flex-1 gap-1">
-            <Pencil className="w-3 h-3" />
-            تعديل
+        <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+          <Button size="sm" variant="outline" onClick={onOpen} className="flex-1 gap-1" title="فتح التفاصيل">
+            <ChevronLeft className="w-3 h-3" />
+            تفاصيل
           </Button>
-          <Button size="sm" variant="ghost" onClick={onArchive} title={student.archived ? 'استرجاع' : 'أرشفة'}>
+          <Button size="sm" variant="ghost" onClick={onWhatsApp} title="واتساب" className="text-emerald-600">
+            <MessageCircle className="w-3 h-3" />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onToggleBlock} title={s.blocked ? 'فك الحظر' : 'حظر'} className={s.blocked ? 'text-emerald-600' : 'text-amber-600'}>
+            <Ban className="w-3 h-3" />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onEdit} title="تعديل">
+            <Pencil className="w-3 h-3" />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onArchive} title={s.archived ? 'استرجاع' : 'أرشفة'}>
             <Archive className="w-3 h-3" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={onDelete} className="text-destructive hover:text-destructive">
+          <Button size="sm" variant="ghost" onClick={onDelete} className="text-destructive" title="حذف">
             <Trash2 className="w-3 h-3" />
           </Button>
         </div>
