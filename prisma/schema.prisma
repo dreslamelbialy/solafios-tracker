@@ -4,7 +4,8 @@
 // للتبديل لـ PostgreSQL: غيّر provider إلى "postgresql" وضع DATABASE_URL صحيح في .env
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
