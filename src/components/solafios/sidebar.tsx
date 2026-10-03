@@ -3,7 +3,7 @@
 import {
   LayoutDashboard, Users, CalendarCheck, Wallet,
   Users2, CalendarOff, MapPin, GraduationCap, Settings,
-  Beaker, CalendarDays, Calendar,
+  Rss, CalendarDays, Calendar,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ViewKey } from '@/lib/use-view'
@@ -41,7 +41,7 @@ export function Sidebar({
       <div className="flex items-center gap-3 p-5 border-b border-white/30">
         <div className="relative">
           <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-            <Beaker className="w-6 h-6 text-primary-foreground" />
+            <Rss className="w-6 h-6 text-primary-foreground" />
           </div>
           {/* Status indicator dot (like Dribbble) */}
           <span className="absolute top-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
@@ -112,7 +112,7 @@ function NavButton({ item, active, onClick }: { item: { label: string; icon: any
 // Mobile header — Dribbble style
 export function MobileHeader({ view, onMenu }: { view: ViewKey, onMenu: () => void }) {
   const current = NAV.find(n => n.key === view)
-  const Icon = current?.icon || Beaker
+  const Icon = current?.icon || Rss
   return (
     <header className="md:hidden sticky top-0 z-30 glass-header border-b border-white/30">
       <div className="flex items-center justify-between p-3">

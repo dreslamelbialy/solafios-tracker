@@ -1,10 +1,14 @@
-// Generate PWA icons from a polished SVG design
+// Generate PWA icons with RSS icon (Lucide-style) instead of beaker
 import sharp from 'sharp'
 import * as fs from 'fs'
 import * as path from 'path'
 
-// Polished icon design: beaker in white, centered, with gradient bg
-// Using a bigger viewBox for better quality
+// RSS icon SVG — matches the user's reference image:
+// - 2 arcs (curves) emanating from bottom-left to top-right
+// - 1 small circle at bottom-left (the source)
+// - White color on the gradient background
+// Lucide RSS path: M4 11a9 9 0 0 1 9 9 / M4 4a16 16 0 0 1 16 16 / circle cx=5 cy=19 r=1
+
 const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -13,9 +17,9 @@ const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill=
       <stop offset="100%" stop-color="#C19BE9"/>
     </linearGradient>
     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
-      <feOffset dx="0" dy="6" result="offsetblur"/>
-      <feFlood flood-color="rgba(0,0,0,0.25)"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feFlood flood-color="rgba(0,0,0,0.2)"/>
       <feComposite in2="offsetblur" operator="in"/>
       <feMerge>
         <feMergeNode/>
@@ -25,11 +29,16 @@ const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill=
   </defs>
   <!-- Background: full bleed gradient -->
   <rect width="512" height="512" fill="url(#bg)"/>
-  <!-- Beaker icon (white) centered -->
-  <g transform="translate(156, 100) scale(8.33)" filter="url(#shadow)">
-    <path d="M22 14h20v6h-2v18a8 8 0 0 1-8 8 8 8 0 0 1-8-8V20h-2v-6z" fill="white"/>
-    <path d="M26 24h12M26 30h12M26 36h8" stroke="#F67B56" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="32" cy="48" r="3" fill="white"/>
+  <!-- RSS icon (white) centered - scaled up from 24x24 viewBox to 512 -->
+  <!-- Translate: center the 24x24 icon in 512x512 canvas, scale by ~16x -->
+  <!-- Center calculation: (512 - 24*16) / 2 = (512 - 384) / 2 = 64 -->
+  <g transform="translate(64, 64) scale(16)" filter="url(#shadow)">
+    <!-- Arc 1: smaller (M4 11a9 9 0 0 1 9 9) -->
+    <path d="M4 11a9 9 0 0 1 9 9" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <!-- Arc 2: larger (M4 4a16 16 0 0 1 16 16) -->
+    <path d="M4 4a16 16 0 0 1 16 16" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <!-- Source dot (circle cx=5 cy=19 r=1) -->
+    <circle cx="5" cy="19" r="1.5" fill="white"/>
   </g>
 </svg>`
 
@@ -71,11 +80,11 @@ const sizes = [
 ]
 
 async function main() {
-  console.log('Generating PWA icons (polished)...')
+  console.log('Generating PWA icons with RSS design...')
   
-  // Save the SVG (for reference)
+  // Save the SVG
   fs.writeFileSync(path.join(PUBLIC_DIR, 'logo.svg'), SVG)
-  console.log('  ✓ logo.svg updated')
+  console.log('  ✓ logo.svg updated (RSS icon)')
   
   for (const { name, size } of sizes) {
     const outPath = path.join(ICONS_DIR, name)
@@ -86,13 +95,11 @@ async function main() {
     console.log(`  ✓ ${name} (${size}x${size})`)
   }
   
-  // Also create a favicon.ico (just rename favicon-32.png as ico, browsers will accept png)
-  // Actually let's create a real ico using sharp
+  // favicon.ico
   const icoBuffer = await sharp(Buffer.from(SVG))
     .resize(32, 32)
     .png()
     .toBuffer()
-  // ICO format is complex; we'll just use PNG as favicon.ico (most browsers accept it)
   fs.writeFileSync(path.join(PUBLIC_DIR, 'favicon.ico'), icoBuffer)
   console.log('  ✓ favicon.ico (32x32)')
   
