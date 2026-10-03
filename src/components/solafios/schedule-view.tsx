@@ -18,6 +18,13 @@ import {
 } from '@/lib/solafios'
 import { ViewKey } from '@/lib/use-view'
 
+// Saudi week order: Saturday → Friday (JS getDay: 6, 0, 1, 2, 3, 4, 5)
+const SAUDI_WEEKDAYS_AR = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة']
+const SAUDI_WEEKDAYS_AR_SHORT = ['سبت', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع']
+// Map Saudi week index (0-6) to JS getDay() value
+// index 0 = Saturday (JS 6), index 1 = Sunday (JS 0), ..., index 6 = Friday (JS 5)
+const SAUDI_TO_JS_DAY = [6, 0, 1, 2, 3, 4, 5]
+
 interface Student {
   id: string
   name: string
@@ -52,13 +59,22 @@ export function ScheduleView({
       .catch(() => setLoading(false))
   }, [])
   
-  // Calculate week range
+  // Calculate week range — Saudi week: Saturday to Friday
+  // In JS: 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+  // Saturday is the first day of the week in Saudi Arabia
   const weekDates = useMemo(() => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const dayOfWeek = today.getDay()
+    // Calculate how many days to go back to reach Saturday
+    // If today is Saturday (6), go back 0 days
+    // If today is Sunday (0), go back 1 day (to Saturday)
+    // If today is Monday (1), go back 2 days
+    // ...
+    // If today is Friday (5), go back 6 days
+    const daysToSaturday = (dayOfWeek + 1) % 7
     const start = new Date(today)
-    start.setDate(today.getDate() - dayOfWeek + weekOffset * 7)
+    start.setDate(today.getDate() - daysToSaturday + weekOffset * 7)
     
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start)
@@ -82,21 +98,23 @@ export function ScheduleView({
   }, [students, filterStream])
   
   // Build grid: 7 columns (days) × N rows (students)
-  // For each day, get students whose weekly schedule includes that day
+  // For each day (Saudi order: Sat→Fri), get students whose weekly schedule includes that JS day
   const grid = useMemo(() => {
-    const result: { day: number; date: string; items: { student: Student; time: string }[] }[] = []
+    const result: { day: number; jsDay: number; date: string; items: { student: Student; time: string }[] }[] = []
     for (let day = 0; day < 7; day++) {
+      const jsDay = SAUDI_TO_JS_DAY[day] // Convert Saudi index to JS getDay()
       const date = weekDates[day]
       const items: { student: Student; time: string }[] = []
       for (const student of activeStudents) {
         const schedule = safeJsonParse<{ day: number; time: string }[]>(student.weeklySchedule, [])
-        const matching = schedule.filter(s => s.day === day)
+        // schedule uses JS day numbers (0=Sun, 6=Sat)
+        const matching = schedule.filter(s => s.day === jsDay)
         for (const s of matching) {
           items.push({ student, time: s.time })
         }
       }
       items.sort((a, b) => a.time.localeCompare(b.time))
-      result.push({ day, date, items })
+      result.push({ day, jsDay, date, items })
     }
     return result
   }, [activeStudents, weekDates])
@@ -161,7 +179,7 @@ export function ScheduleView({
                 <CardHeader className="p-3 pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-bold flex items-center gap-2">
-                      <span className={isToday ? 'text-primary' : ''}>{WEEKDAYS_AR[day]}</span>
+                      <span className={isToday ? 'text-primary' : ''}>{SAUDI_WEEKDAYS_AR[day]}</span>
                     </CardTitle>
                     <Badge variant={isToday ? 'default' : 'outline'} className="text-[10px]">
                       {new Date(date + 'T00:00:00').getDate()}
@@ -223,10 +241,11 @@ export function ScheduleView({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-7 gap-2">
-            {WEEKDAYS_AR_SHORT.map((day, i) => {
+            {SAUDI_WEEKDAYS_AR_SHORT.map((day, i) => {
+              const jsDay = SAUDI_TO_JS_DAY[i]
               const count = activeStudents.filter(s => {
                 const sched = safeJsonParse<{ day: number }[]>(s.weeklySchedule, [])
-                return sched.some(sc => sc.day === i)
+                return sched.some(sc => sc.day === jsDay)
               }).length
               return (
                 <div key={i} className="text-center p-2 rounded-lg bg-muted/40">

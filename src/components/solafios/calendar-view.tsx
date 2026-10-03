@@ -13,11 +13,14 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
-  WEEKDAYS_AR, WEEKDAYS_AR_SHORT, formatTime12, formatDateAr,
+  WEEKDAYS_AR, formatTime12, formatDateAr,
   SUBJECT_AR, STREAM_AR, SESSION_STATUS_AR, SESSION_STATUS_COLORS,
   todayStr, safeJsonParse,
 } from '@/lib/solafios'
 import { ViewKey } from '@/lib/use-view'
+
+// Saudi week order: Saturday → Friday (different from default WEEKDAYS_AR_SHORT which starts Sunday)
+const SAUDI_WEEKDAYS_AR_SHORT = ['سبت', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع']
 
 interface Session {
   id: string
@@ -91,17 +94,24 @@ export function CalendarView({
     return map
   }, [sessions])
   
-  // Month grid (6 weeks × 7 days)
+  // Month grid (6 weeks × 7 days) — Saudi week: Saturday to Friday
+  // In JS: 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+  // Saturday is the first day of the week in Saudi Arabia
   const monthGrid = useMemo(() => {
     const firstDay = new Date(currentMonth.year, currentMonth.month, 1)
     const lastDay = new Date(currentMonth.year, currentMonth.month + 1, 0)
-    const startDayOfWeek = firstDay.getDay() // 0 = Sunday
+    // Calculate days to go back to reach Saturday
+    // If first day is Saturday (6), go back 0 days
+    // If first day is Sunday (0), go back 1 day (to Saturday)
+    // If first day is Friday (5), go back 6 days
+    const startDayOfWeek = firstDay.getDay()
+    const daysToSaturday = (startDayOfWeek + 1) % 7
     
     const days: { date: string; day: number; isCurrentMonth: boolean; isToday: boolean }[] = []
     const today = todayStr()
     
-    // Previous month's trailing days
-    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+    // Previous month's trailing days (from Saturday before the 1st)
+    for (let i = daysToSaturday - 1; i >= 0; i--) {
       const d = new Date(currentMonth.year, currentMonth.month, -i)
       days.push({
         date: d.toISOString().slice(0, 10),
@@ -231,7 +241,7 @@ export function CalendarView({
           <CardContent className="p-3">
             {/* Weekday headers */}
             <div className="grid grid-cols-7 gap-1 mb-2">
-              {WEEKDAYS_AR_SHORT.map((day, i) => (
+              {SAUDI_WEEKDAYS_AR_SHORT.map((day, i) => (
                 <div key={i} className="text-center text-xs font-bold text-muted-foreground py-2">
                   {day}
                 </div>
