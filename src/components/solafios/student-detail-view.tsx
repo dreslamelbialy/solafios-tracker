@@ -17,6 +17,7 @@ import {
   ArrowRight, Phone, MapPin, Pencil, Plus, Check, X, Clock,
   Wallet, CalendarCheck, BookOpen, Star, Printer, Ban,
   MessageCircle, Trash2, RefreshCw, GraduationCap, TrendingUp,
+  PauseCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -158,6 +159,31 @@ export function StudentDetailView({
     }
   }
   
+  const handleTogglePauseCourse = async () => {
+    const isPaused = student.status === 'paused'
+    const confirmMsg = isPaused
+      ? 'هل تريد استئناف الكورس؟ ستحتاج لتوليد الجلسات القادمة من الإعدادات.'
+      : 'سيتم إيقاف الكورس وحذف كل المواعيد القادمة (المجدولة فقط). الجلسات التامة السابقة مش هتتأثر. متابعة؟'
+    if (!confirm(confirmMsg)) return
+    
+    try {
+      const res = await fetch(`/api/students/${student.id}/pause-course`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paused: !isPaused }),
+      })
+      const data = await res.json()
+      if (isPaused) {
+        toast.success('تم استئناف الكورس. شغل "توليد الجلسات" من الإعدادات لإعادة المواعيد.')
+      } else {
+        toast.success(`تم إيقاف الكورس. تم حذف ${data.deletedSessions} موعد قادم.`)
+      }
+      load()
+    } catch {
+      toast.error('فشل')
+    }
+  }
+  
   const handleWhatsApp = () => {
     if (!student.phone) {
       toast.error('لا يوجد رقم هاتف')
@@ -199,6 +225,19 @@ export function StudentDetailView({
           <Button variant="outline" size="sm" onClick={handleWhatsApp} className="gap-1 text-emerald-600">
             <MessageCircle className="w-4 h-4" />
             واتساب
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleTogglePauseCourse}
+            className={
+              student.status === 'paused'
+                ? 'gap-1 text-emerald-600 border-emerald-300'
+                : 'gap-1 text-orange-600 border-orange-300'
+            }
+          >
+            <PauseCircle className="w-4 h-4" />
+            {student.status === 'paused' ? 'استئناف الكورس' : 'إيقاف الكورس'}
           </Button>
           <Button variant="outline" size="sm" onClick={handleToggleBlock} className={student.blocked ? 'text-emerald-600' : 'text-amber-600'}>
             <Ban className="w-4 h-4" />

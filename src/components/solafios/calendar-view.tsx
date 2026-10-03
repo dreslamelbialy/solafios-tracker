@@ -71,7 +71,7 @@ export function CalendarView({
       toDate = selectedDate
     }
     
-    fetch(`/api/sessions?from=${fromDate}&to=${toDate}&limit=500`)
+    fetch(`/api/sessions?from=${fromDate}&to=${toDate}&limit=500&excludeInactive=true`)
       .then(r => r.json())
       .then(d => { setSessions(d); setLoading(false) })
       .catch(() => setLoading(false))

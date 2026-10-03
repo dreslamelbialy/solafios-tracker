@@ -13,6 +13,12 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status')
   const date = searchParams.get('date')
   const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 500
+  // excludeInactive: hide sessions of paused/blocked/archived students (for calendar/schedule views)
+  const excludeInactive = searchParams.get('excludeInactive') === 'true'
+  // upcomingOnly: only future sessions (today onwards)
+  const upcomingOnly = searchParams.get('upcomingOnly') === 'true'
+  
+  const today = new Date().toISOString().slice(0, 10)
   
   const sessions = await db.session.findMany({
     where: {
@@ -22,6 +28,14 @@ export async function GET(req: NextRequest) {
       ...(toDate ? { date: { lte: toDate } } : {}),
       ...(date ? { date } : {}),
       ...(status ? { status } : {}),
+      ...(upcomingOnly ? { date: { gte: today } } : {}),
+      ...(excludeInactive ? {
+        student: {
+          status: 'active',
+          archived: false,
+          blocked: false,
+        }
+      } : {}),
     },
     include: {
       student: {
@@ -37,6 +51,7 @@ export async function GET(req: NextRequest) {
           phone: true,
           familyId: true,
           locationId: true,
+          locationRec: { select: { name: true, lat: true, lng: true } },
         }
       },
       payment: { select: { id: true, amount: true, date: true, type: true } }

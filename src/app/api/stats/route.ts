@@ -98,7 +98,13 @@ export async function GET(req: NextRequest) {
       where: {
         userId,
         date: { gte: today, lte: next7Str },
-        status: 'scheduled'
+        status: 'scheduled',
+        // Only show upcoming sessions for active, non-blocked, non-archived students
+        student: {
+          status: 'active',
+          archived: false,
+          blocked: false,
+        }
       },
       include: {
         student: {
