@@ -3,10 +3,43 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   Solafios Tracker — Custom Fonts (uploaded by user)
+   ============================================================ */
+
+/* Aref Ruqaa — خط عربي تقليدي أنيق (للعناوين) */
+@font-face {
+  font-family: 'Aref Ruqaa';
+  src: url('/fonts/ArefRuqaa-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aref Ruqaa';
+  src: url('/fonts/ArefRuqaa-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Comico — خط إنجليزي كاجوال للطلاب (للأرقام والنصوص الإنجليزية) */
+@font-face {
+  font-family: 'Comico';
+  src: url('/fonts/Comico-Regular.woff2') format('woff2'),
+       url('/fonts/Comico-Regular.woff') format('woff'),
+       url('/fonts/Comico-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-cairo), var(--font-inter), system-ui, sans-serif;
+  --font-heading: 'Aref Ruqaa', var(--font-cairo), serif;
+  --font-display: 'Comico', var(--font-inter), sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -45,24 +78,24 @@
 }
 
 /* ============================================================
-   Solafios Tracker — Light Theme (Glass / Apple style)
+   Solafios Tracker — Light Theme (Pastel Gradient Glass)
    ============================================================ */
 :root {
   --radius: 0.875rem;
 
-  /* Background — soft gradient reminiscent of macOS */
+  /* Background — pastel gradient by user: #84FFC9 → #AAB2FF → #ECA0FF */
   --background: oklch(0.99 0.005 165);
   --foreground: oklch(0.20 0.02 165);
 
-  /* Cards — semi-transparent for glass effect */
+  /* Cards — frosted glass over the gradient */
   --card: oklch(1 0 0 / 0.72);
   --card-foreground: oklch(0.20 0.02 165);
 
   --popover: oklch(1 0 0 / 0.88);
   --popover-foreground: oklch(0.20 0.02 165);
 
-  /* Primary — Solafios teal-green */
-  --primary: oklch(0.52 0.09 170);
+  /* Primary — picked from the gradient (mint #84FFC9 → teal) */
+  --primary: oklch(0.62 0.13 175);
   --primary-foreground: oklch(0.99 0.005 165);
 
   --secondary: oklch(0.96 0.012 165);
@@ -77,27 +110,27 @@
   --destructive: oklch(0.60 0.22 25);
   --border: oklch(0.88 0.012 165 / 0.6);
   --input: oklch(0.92 0.01 165 / 0.5);
-  --ring: oklch(0.52 0.09 170 / 0.4);
+  --ring: oklch(0.62 0.13 175 / 0.4);
 
-  /* Chart colors — harmonious with primary */
-  --chart-1: oklch(0.52 0.09 170);
-  --chart-2: oklch(0.65 0.13 80);
-  --chart-3: oklch(0.60 0.20 25);
-  --chart-4: oklch(0.55 0.12 250);
-  --chart-5: oklch(0.70 0.15 310);
+  /* Chart colors — pastel rainbow matching the gradient */
+  --chart-1: oklch(0.78 0.18 165);  /* mint #84FFC9 */
+  --chart-2: oklch(0.78 0.10 270);  /* periwinkle #AAB2FF */
+  --chart-3: oklch(0.78 0.18 330);  /* pink #ECA0FF */
+  --chart-4: oklch(0.78 0.15 100);  /* light yellow-green */
+  --chart-5: oklch(0.78 0.13 220);  /* sky blue */
 
   --sidebar: oklch(0.985 0.005 165 / 0.85);
   --sidebar-foreground: oklch(0.20 0.02 165);
-  --sidebar-primary: oklch(0.52 0.09 170);
+  --sidebar-primary: oklch(0.62 0.13 175);
   --sidebar-primary-foreground: oklch(0.99 0.005 165);
   --sidebar-accent: oklch(0.94 0.025 165);
   --sidebar-accent-foreground: oklch(0.25 0.05 165);
   --sidebar-border: oklch(0.88 0.012 165 / 0.4);
-  --sidebar-ring: oklch(0.52 0.09 170 / 0.4);
+  --sidebar-ring: oklch(0.62 0.13 175 / 0.4);
 }
 
 /* ============================================================
-   Dark Theme — frosted glass on dark
+   Dark Theme
    ============================================================ */
 .dark {
   --background: oklch(0.16 0.015 165);
@@ -109,7 +142,7 @@
   --popover: oklch(0.24 0.02 165 / 0.92);
   --popover-foreground: oklch(0.97 0.005 165);
 
-  --primary: oklch(0.65 0.11 170);
+  --primary: oklch(0.72 0.15 175);
   --primary-foreground: oklch(0.15 0.015 165);
 
   --secondary: oklch(0.27 0.02 165 / 0.6);
@@ -124,22 +157,22 @@
   --destructive: oklch(0.70 0.20 25);
   --border: oklch(1 0 0 / 0.08);
   --input: oklch(1 0 0 / 0.12);
-  --ring: oklch(0.65 0.11 170 / 0.5);
+  --ring: oklch(0.72 0.15 175 / 0.5);
 
-  --chart-1: oklch(0.65 0.11 170);
-  --chart-2: oklch(0.72 0.14 80);
-  --chart-3: oklch(0.70 0.22 25);
-  --chart-4: oklch(0.65 0.14 250);
-  --chart-5: oklch(0.75 0.16 310);
+  --chart-1: oklch(0.78 0.18 165);
+  --chart-2: oklch(0.78 0.10 270);
+  --chart-3: oklch(0.78 0.18 330);
+  --chart-4: oklch(0.78 0.15 100);
+  --chart-5: oklch(0.78 0.13 220);
 
   --sidebar: oklch(0.18 0.015 165 / 0.7);
   --sidebar-foreground: oklch(0.97 0.005 165);
-  --sidebar-primary: oklch(0.65 0.11 170);
+  --sidebar-primary: oklch(0.72 0.15 175);
   --sidebar-primary-foreground: oklch(0.15 0.015 165);
   --sidebar-accent: oklch(0.30 0.03 165 / 0.6);
   --sidebar-accent-foreground: oklch(0.97 0.005 165);
   --sidebar-border: oklch(1 0 0 / 0.06);
-  --sidebar-ring: oklch(0.65 0.11 170 / 0.5);
+  --sidebar-ring: oklch(0.72 0.15 175 / 0.5);
 }
 
 @layer base {
@@ -156,33 +189,37 @@
   }
 
   body {
-    /* Soft gradient background like macOS Big Sur */
-    background:
-      radial-gradient(at 0% 0%, oklch(0.52 0.09 170 / 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, oklch(0.70 0.15 310 / 0.05) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, oklch(0.65 0.13 80 / 0.04) 0px, transparent 50%),
-      var(--background);
+    /* User's gradient: #84FFC9 (mint) → #AAB2FF (periwinkle) → #ECA0FF (pink) */
+    background: linear-gradient(90deg, #84FFC9, #AAB2FF, #ECA0FF);
     background-attachment: fixed;
     min-height: 100vh;
   }
 
+  /* Dark mode: same gradient but darker */
   .dark body {
-    background:
-      radial-gradient(at 0% 0%, oklch(0.65 0.11 170 / 0.12) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, oklch(0.75 0.16 310 / 0.10) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, oklch(0.72 0.14 80 / 0.08) 0px, transparent 50%),
-      var(--background);
+    background: linear-gradient(90deg,
+      oklch(0.30 0.10 165),
+      oklch(0.30 0.08 270),
+      oklch(0.30 0.10 330)
+    );
+    background-attachment: fixed;
+  }
+
+  /* Use Aref Ruqaa for all Arabic headings (h1, h2, h3, etc.) */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Aref Ruqaa', var(--font-cairo), serif;
+    font-weight: 700;
+  }
+
+  /* Use Comico for English text and numbers (tabular) */
+  .tabular, .tabular-nums {
+    font-family: 'Comico', var(--font-inter), sans-serif;
+    font-variant-numeric: tabular-nums;
   }
 
   /* RTL enhancements */
   [dir="rtl"] {
     text-align: right;
-  }
-
-  /* Tabular numbers for financial data */
-  .tabular {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
   }
 }
 
@@ -190,7 +227,6 @@
    Glass effects (Apple-inspired)
    ============================================================ */
 
-/* Frosted glass card */
 .glass {
   background: var(--card);
   backdrop-filter: blur(20px) saturate(180%);
@@ -209,21 +245,18 @@
     0 4px 12px -2px rgba(0, 0, 0, 0.3);
 }
 
-/* Sidebar glass */
 .glass-sidebar {
   background: var(--sidebar);
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
 }
 
-/* Header glass (sticky) */
 .glass-header {
   background: var(--popover);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* Make shadcn Card use glass effect by default */
 [data-slot="card"] {
   background: var(--card);
   backdrop-filter: blur(20px) saturate(180%);
@@ -242,7 +275,6 @@
     0 4px 12px -2px rgba(0, 0, 0, 0.3);
 }
 
-/* Custom scrollbar — thin like macOS */
 .scroll-area-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -259,21 +291,19 @@
   background: var(--primary);
 }
 
-/* Smooth transitions */
 button, a, input, select, textarea {
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Focus ring — Apple style */
 *:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Print styles for reports */
 @media print {
   .no-print { display: none !important; }
   .print-only { display: block !important; }
   body { background: white !important; }
 }
+
