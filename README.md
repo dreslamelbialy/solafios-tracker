@@ -73,7 +73,7 @@ bun run dev
 3. "Add New Project" → اختار الـ repo
 4. في Environment Variables، أضف:
    ```
-   DATABASE_URL=postgresql://postgres.wrnosdqilivrzkrvonkp:MennaEslam908%40@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres
+   DATABASE_URL=postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[YOUR-REGION].pooler.supabase.com:5432/postgres
    ```
 5. في `prisma/schema.prisma`، غيّر:
    ```prisma
