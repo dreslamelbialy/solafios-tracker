@@ -48,7 +48,7 @@ export function Sidebar({
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="font-bold text-base leading-tight truncate">سولافيوس</h1>
-          <p className="text-[11px] text-muted-foreground">علوم وكيمياء</p>
+          <p className="text-[11px] text-muted-foreground">إدارة الدروس الخصوصية</p>
         </div>
       </div>
       

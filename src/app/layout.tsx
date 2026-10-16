@@ -29,7 +29,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Solafios Tracker — سولافيوس تراكر",
-  description: "إدارة الدروس الخصوصية لمدرسي العلوم والكيمياء",
+  description: "إدارة الدروس الخصوصية",
   applicationName: "Solafios Tracker",
   authors: [{ name: "Solafios" }],
   manifest: "/manifest.json",

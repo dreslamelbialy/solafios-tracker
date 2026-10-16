@@ -1,7 +1,7 @@
 {
   "name": "Solafios Tracker — سولافيوس تراكر",
   "short_name": "Solafios",
-  "description": "إدارة الدروس الخصوصية لمدرسي العلوم والكيمياء",
+  "description": "إدارة الدروس الخصوصية",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
